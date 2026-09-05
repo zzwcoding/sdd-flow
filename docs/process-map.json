@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "sdd-flow 全流程地图",
+    "locale": "zh-CN",
+    "quality_profile": "standard",
+    "output": "docs/process-map.html",
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "external": { "label": "人工入口" },
+        "backend": { "label": "流程阶段" },
+        "frontend": { "label": "人机交互档" },
+        "messagebus": { "label": "调度 / 自动执行" },
+        "database": { "label": "账本 / 验收" },
+        "cloud": { "label": "横切维护" }
+      }
+    },
+    "views": [
+      { "id": "mainline", "label": "主链·从想法到体检", "focus": ["p1", "s0", "s1", "s2", "s3", "s4", "s5", "autonomous", "close", "s7"], "note": "八个阶段的主干:每个箭头都是一道门禁。" },
+      { "id": "design", "label": "设计期·人的品味", "focus": ["p1", "s0", "s1", "s2"], "note": "逼问出 PRD,聚类成深模块,架构图过审才许编码。" },
+      { "id": "spec", "label": "规格与拆票", "focus": ["s2", "s3", "s4", "s5"], "note": "卡是唯一真源;spec 定稿才拆票,票走 frontier。" },
+      { "id": "modes", "label": "两档执行", "focus": ["s5", "interactive", "autonomous", "close"], "note": "学习=互动档人把控;生产=自主档主子代理全自动。" },
+      { "id": "backedges", "label": "回退与守门", "focus": ["s1", "s3", "s4", "autonomous", "close"], "note": "回退边带状态回退:回到哪个阶段,产物状态同步退回。" }
+    ]
+  },
+  "lanes": [
+    { "id": "entry", "label": "入口" },
+    { "id": "design", "label": "设计期" },
+    { "id": "spec", "label": "规格与拆票" },
+    { "id": "exec", "label": "执行期" },
+    { "id": "ops", "label": "收尾与维护" }
+  ],
+  "phases": [
+    { "id": "boot", "label": "定位与初始化", "fromCol": 0, "toCol": 1 },
+    { "id": "design_phase", "label": "设计与规格", "fromCol": 2, "toCol": 4, "variant": "emphasis" },
+    { "id": "run_phase", "label": "执行与验收", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "modes", "label": "两档执行", "lane": "exec", "fromCol": 5, "toCol": 5, "variant": "emphasis" },
+    { "id": "ledgerwork", "label": "验收与体检", "lane": "ops", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["p1", "s0", "s1", "s2", "s3", "s4", "s5", "autonomous", "close", "s7"],
+  "semanticChecks": {
+    "allowedRoots": ["p1"],
+    "requiredPaths": [
+      { "from": "p1", "to": "close" }
+    ]
+  },
+  "nodes": [
+    { "id": "p1", "lane": "entry", "col": 0, "type": "external", "label": "P1 入口协议", "sublabel": "读账本·报告·等拍板", "width": 140 },
+    { "id": "s0", "lane": "design", "col": 1, "type": "backend", "label": "阶段0 初始化", "sublabel": "CI+spec gate+tracker", "width": 140 },
+    { "id": "s1", "lane": "design", "col": 2, "type": "backend", "label": "阶段1 需求对齐", "sublabel": "11维逼问·A/B分流", "tag": "门禁:PRD定稿", "width": 150 },
+    { "id": "s2", "lane": "design", "col": 3, "type": "backend", "label": "阶段2 模块划分", "sublabel": "接口卡=唯一真源", "tag": "门禁:图过审+骨架", "width": 150 },
+    { "id": "s3", "lane": "spec", "col": 3, "type": "backend", "label": "阶段3 功能规格", "sublabel": "主干优先·逐功能", "tag": "gate+人审定稿", "width": 150 },
+    { "id": "s4", "lane": "spec", "col": 4, "type": "backend", "label": "阶段4 拆票", "sublabel": "垂直切片·frontier", "tag": "无跨模块接口票", "width": 150 },
+    { "id": "s5", "lane": "exec", "col": 4, "type": "messagebus", "label": "阶段5 派工判定", "sublabel": "三前置检查", "width": 140 },
+    { "id": "interactive", "lane": "exec", "col": 5, "type": "frontend", "label": "互动档·学习", "sublabel": "learn-by-rebuild", "width": 140, "yOffset": -22 },
+    { "id": "autonomous", "lane": "exec", "col": 5, "type": "messagebus", "label": "自主档·生产", "sublabel": "主代理→子代理·tdd", "tag": "逐张不并行", "width": 150, "yOffset": 64 },
+    { "id": "close", "lane": "ops", "col": 5, "type": "database", "label": "5.4 收尾验收", "sublabel": "回写四样·gate·对账", "width": 150, "yOffset": -22 },
+    { "id": "s7", "lane": "ops", "col": 5, "type": "cloud", "label": "阶段7 架构体检", "sublabel": "转issue·刷新图+CI", "width": 140, "yOffset": 44 }
+  ],
+  "edges": [
+    { "id": "e-boot", "from": "p1", "to": "s0", "label": "新仓库", "variant": "emphasis" },
+    { "id": "e-ci", "from": "s0", "to": "s1", "label": "CI就绪" },
+    { "id": "e-gate1", "from": "s1", "to": "s2", "label": "门禁:PRD已定稿·11维关闭", "variant": "security" },
+    { "id": "e-gate2", "from": "s2", "to": "s3", "label": "门禁:图过审+目录骨架", "variant": "security" },
+    { "id": "e-gate3", "from": "s3", "to": "s4", "label": "门禁:gate通过+人审定稿", "variant": "security" },
+    { "id": "e-ticket", "from": "s4", "to": "s5", "label": "frontier取票" },
+    { "id": "e-mode-i", "from": "s5", "to": "interactive", "label": "学习项目" },
+    { "id": "e-mode-a", "from": "s5", "to": "autonomous", "label": "生产项目", "variant": "emphasis" },
+    { "id": "e-i-close", "from": "interactive", "to": "close", "label": "回报经人转达" },
+    { "id": "e-a-close", "from": "autonomous", "to": "close", "label": "子代理回报", "variant": "emphasis" },
+    { "id": "e-loop", "from": "close", "to": "s5", "label": "还有票·取下一张", "role": "return" },
+    { "id": "e-review", "from": "close", "to": "s7", "label": "票全清·进体检" },
+    { "id": "e-issue", "from": "s7", "to": "s4", "label": "选中项转issue", "role": "branch", "variant": "dashed" },
+    { "id": "e-back-stack", "from": "s1", "to": "s0", "label": "栈冲突·ADR换栈", "role": "error", "variant": "security" },
+    { "id": "e-back-req", "from": "s3", "to": "s1", "label": "需求漏洞·PRD回退", "role": "error", "variant": "security" },
+    { "id": "e-back-module", "from": "s4", "to": "s2", "label": "票需跨模块改接口·回炉", "role": "error", "variant": "security" },
+    { "id": "e-back-upgrade", "from": "autonomous", "to": "s3", "label": "铁律:接口变更/spec漏洞→升级回炉", "role": "error", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "rose", "title": "门禁与铁律", "items": ["门禁链:PRD定稿 / 图过审 / spec定稿 / 收尾对账——不过闸不前进", "铁律:接口真源在卡;实现不许顺手改接口,升级回L0(回阶段2/3)", "阶段6 CI横切:阶段0建立、先于代码,全流程<5分钟"] },
+    { "dot": "cyan", "title": "两档执行", "items": ["学习项目=互动档:learn-by-rebuild,每阶段人把控", "生产项目=自主档:主代理逐张派子代理,默认不并行", "共同点:tdd 测试先行,CI 绿才算完"] },
+    { "dot": "emerald", "title": "产物即状态", "items": ["PRD/spec/票三个状态机,翻转时机写在状态流转表", "回退到哪个阶段,产物状态同步退回", "新窗口零记忆恢复:入口协议读账本,不靠聊天记录"] }
+  ]
+}
